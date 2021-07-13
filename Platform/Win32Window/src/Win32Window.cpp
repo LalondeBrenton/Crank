@@ -12,6 +12,8 @@
 
 namespace Crank
 {
+	static LPCWSTR s_myclass = L"myclass";
+
 	Win32Window::Win32Window()
 		: m_Window(nullptr)
 	{
@@ -20,11 +22,12 @@ namespace Crank
 
 	Win32Window::~Win32Window()
 	{
+		DestroyWindow(m_Window);
+		UnregisterClass(s_myclass, GetModuleHandle(0));
 	}
 
 	void Win32Window::Init(const WindowProperties& props)
 	{
-		LPCWSTR myclass = L"myclass";
 		WNDCLASSEXW wndclass; 
 		wndclass.cbSize = sizeof(tagWNDCLASSEXW);
 		wndclass.style = CS_DBLCLKS;
@@ -36,7 +39,7 @@ namespace Crank
 		wndclass.hCursor = LoadCursor(0, IDC_ARROW);
 		wndclass.hbrBackground = HBRUSH(COLOR_WINDOW + 1);
 		wndclass.lpszMenuName = 0;
-		wndclass.lpszClassName = myclass;
+		wndclass.lpszClassName = s_myclass;
 		wndclass.hIconSm = LoadIcon(0, IDI_APPLICATION);
 
 
@@ -47,7 +50,7 @@ namespace Crank
 			std::wstring wtitle = ConvertStringtoW(props.Title);
 			LPCWSTR title = wtitle.c_str();
 
-			m_Window = CreateWindowEx(0, myclass, (LPCWSTR)title,
+			m_Window = CreateWindowEx(0, s_myclass, (LPCWSTR)title,
 				WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
 				props.Width, props.Height, 0, 0, GetModuleHandle(0), 0);
 			if (m_Window)
@@ -56,16 +59,20 @@ namespace Crank
 				LONG_PTR lpthis = SetWindowLongPtr(m_Window, GWLP_USERDATA, (LONG_PTR)this);
 
 				ShowWindow(m_Window, SW_SHOWDEFAULT);
-				UpdateWindow(m_Window);
+				//UpdateWindow(m_Window);
 			}
+			else
+				LastErrormsg();
 		}
+		else
+			LastErrormsg();
 		
 	}
 
 	void Win32Window::OnUpdate()
 	{
 		MSG msg;
-		while (GetMessage(&msg, 0, 0, 0))
+		while (PeekMessage(&msg, m_Window, 0, 0, PM_REMOVE) != 0)
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -95,10 +102,11 @@ namespace Crank
 
 		switch (msg)
 		{
-		case WM_DESTROY:
+		case WM_CLOSE:
 		{
 			WindowCloseEvent event;
-			objwindow->m_Data.EventCallback(event);
+			if (objwindow->m_Data.EventCallback)
+				objwindow->m_Data.EventCallback(event);
 			PostQuitMessage(0);
 			return 0;
 		}
@@ -107,7 +115,8 @@ namespace Crank
 			objwindow->m_Data.Width = LOWORD(lp);
 			objwindow->m_Data.Height = HIWORD(lp);
 			WindowResizeEvent event(objwindow->m_Data.Width, objwindow->m_Data.Height);
-			objwindow->m_Data.EventCallback(event);
+			if (objwindow->m_Data.EventCallback)
+				objwindow->m_Data.EventCallback(event);
 			return 0;
 		}
 		case WM_ACTIVATE: // Has Focus?
@@ -122,20 +131,23 @@ namespace Crank
 			KeyCode key = WinToKeyCode(wp);
 			bool isBitSet = lp & (1 << 30);
 			KeyPressedEvent event(key, (isBitSet == false) ? 0 : 1);
-			objwindow->m_Data.EventCallback(event);
+			if (objwindow->m_Data.EventCallback)
+				objwindow->m_Data.EventCallback(event);
 			return 0;
 		}
 		case WM_KEYUP:
 		{
 			KeyCode key = WinToKeyCode(wp);
 			KeyReleasedEvent event(key);
-			objwindow->m_Data.EventCallback(event);
+			if (objwindow->m_Data.EventCallback)
+				objwindow->m_Data.EventCallback(event);
 			return 0;
 		}
 		case WM_CHAR:
 		{
 			KeyTypedEvent event((KeyCode)wp);
-			objwindow->m_Data.EventCallback(event);
+			if (objwindow->m_Data.EventCallback)
+				objwindow->m_Data.EventCallback(event);
 			return 0;
 		}
 		case WM_MOUSEMOVE:
@@ -143,50 +155,58 @@ namespace Crank
 			float x = (float)GET_X_LPARAM(lp);
 			float y = (float)GET_Y_LPARAM(lp);
 			MouseMovedEvent event(x, y);
-			objwindow->m_Data.EventCallback(event);
+			if (objwindow->m_Data.EventCallback)
+				objwindow->m_Data.EventCallback(event);
 			return 0;
 		}
 		case WM_MOUSEWHEEL:
 		{
 			short scroll = GET_WHEEL_DELTA_WPARAM(wp);
 			MouseScrolledEvent event(0.0f, (float)scroll / 120.0f);
-			objwindow->m_Data.EventCallback(event);
+			if (objwindow->m_Data.EventCallback)
+				objwindow->m_Data.EventCallback(event);
 			return 0;
 		}
 		case WM_LBUTTONDOWN:
 		{
 			MouseButtonPressedEvent event(Mouse::ButtonLeft);
-			objwindow->m_Data.EventCallback(event);
+			if (objwindow->m_Data.EventCallback)
+				objwindow->m_Data.EventCallback(event);
 			return 0;
 		}
 		case WM_RBUTTONDOWN:
 		{
 			MouseButtonPressedEvent event(Mouse::ButtonMiddle);
-			objwindow->m_Data.EventCallback(event);
+			if (objwindow->m_Data.EventCallback)
+				objwindow->m_Data.EventCallback(event);
 			return 0;
 		}
 		case WM_MBUTTONDOWN:
 		{
 			MouseButtonPressedEvent event(Mouse::ButtonRight);
-			objwindow->m_Data.EventCallback(event);
+			if (objwindow->m_Data.EventCallback)
+				objwindow->m_Data.EventCallback(event);
 			return 0;
 		}
 		case WM_LBUTTONUP:
 		{
 			MouseButtonReleasedEvent event(Mouse::ButtonLeft);
-			objwindow->m_Data.EventCallback(event);
+			if (objwindow->m_Data.EventCallback)
+				objwindow->m_Data.EventCallback(event);
 			return 0;
 		}
 		case WM_RBUTTONUP:
 		{
 			MouseButtonReleasedEvent event(Mouse::ButtonMiddle);
-			objwindow->m_Data.EventCallback(event);
+			if (objwindow->m_Data.EventCallback)
+				objwindow->m_Data.EventCallback(event);
 			return 0;
 		}
 		case WM_MBUTTONUP:
 		{
 			MouseButtonReleasedEvent event(Mouse::ButtonRight);
-			objwindow->m_Data.EventCallback(event);
+			if (objwindow->m_Data.EventCallback)
+				objwindow->m_Data.EventCallback(event);
 			return 0;
 		}
 		}

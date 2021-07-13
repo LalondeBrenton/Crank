@@ -40,7 +40,9 @@ namespace Crank
 		LibLoader m_LibLoader;
 		Window* m_Window;
 		//Scope<Window> m_Window;
-
+		std::string m_Name;
+		WindowAPIs m_WindowAPI = WindowAPIs::WindowAPIWIN32;
+		bool m_SwapWindowAPI = false;
 		bool m_Running = true;
 		bool m_Minimized = false;
 		LayerStack m_LayerStack;

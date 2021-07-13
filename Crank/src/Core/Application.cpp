@@ -2,18 +2,18 @@
 #include "pch.h"
 #include "Application.h"
 
+#include "Events/KeyEvent.h"
+
 namespace Crank
 {
 	Application::Application(ApplicationCommandLineArgs args, const std::string& name)
-		: m_CommandLineArgs(args)
+		: m_CommandLineArgs(args), m_Name(name)
 	{
-		// Load the GLFW shared lib for creating a window
-		//m_LibLoader.LoadWindow(WindowAPIs::WindowAPIGLFW);
-		m_LibLoader.LoadWindow(WindowAPIs::WindowAPIWIN32);
+		m_LibLoader.LoadWindow(m_WindowAPI);
 		m_Window = m_LibLoader.GetWindow();
 
+		m_Window->Init(WindowProperties(m_Name));
 		m_Window->SetEventCallback(CGE_BIND_EVENT_FN(Application::OnEvent));
-		m_Window->Init(WindowProperties(name));
 	}
 
 	Application::~Application()
@@ -26,6 +26,16 @@ namespace Crank
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(CGE_BIND_EVENT_FN(Application::OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(CGE_BIND_EVENT_FN(Application::OnWindowResize));
+
+
+		if (e.GetEventType() == Crank::EventType::KeyReleased)
+		{
+			KeyReleasedEvent keyevent = dynamic_cast<KeyReleasedEvent&>(e);
+			if (keyevent.GetKeyCode() == Key::F1)
+			{
+				m_SwapWindowAPI = true;
+			}
+		}
 
 		for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
 		{
@@ -59,6 +69,23 @@ namespace Crank
 			}
 
 			m_Window->OnUpdate();
+
+			if (m_SwapWindowAPI)
+			{
+				if (m_WindowAPI == WindowAPIs::WindowAPIGLFW)
+					m_WindowAPI = WindowAPIs::WindowAPIWIN32;
+				else
+					m_WindowAPI = WindowAPIs::WindowAPIGLFW;
+
+				m_LibLoader.ReleaseWindow();
+
+				m_LibLoader.LoadWindow(m_WindowAPI);
+				m_Window = m_LibLoader.GetWindow();
+
+				m_Window->Init(WindowProperties(m_Name));
+				m_Window->SetEventCallback(CGE_BIND_EVENT_FN(Application::OnEvent));
+				m_SwapWindowAPI = false;
+			}
 		}
 	}
 	bool Application::OnWindowClose(WindowCloseEvent& e)

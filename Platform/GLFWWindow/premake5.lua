@@ -15,6 +15,7 @@ project "GLFWWindow"
 
 	defines
 	{
+		"CGE_PLATFORM_WINDOWS",
 		"_CRT_SECURE_NO_WARNINGS",
 		"BUILD_DLL",
 		"GLFW_INCLUDE_NONE"
@@ -33,31 +34,27 @@ project "GLFWWindow"
 		"GLFW",
 		"opengl32.lib"
 	}
-
+	
 	configuration "windows"
 	postbuildcommands 
 	{ 
-		("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
+		("{COPY} %{cfg.buildtarget.relpath} ../../bin/" .. outputdir .. "/Sandbox")
 	}
 
 	filter "system:windows"
 		systemversion "latest"
 
-		defines
-		{
-		}
-
 	filter "configurations:Debug"
-		defines "HZ_DEBUG"
+		defines "CGE_DEBUG"
 		runtime "Debug"
 		symbols "on"
 
 	filter "configurations:Release"
-		defines "HZ_RELEASE"
+		defines "CGE_RELEASE"
 		runtime "Release"
 		optimize "on"
 
 	filter "configurations:Dist"
-		defines "HZ_DIST"
+		defines "CGE_DIST"
 		runtime "Release"
 		optimize "on"

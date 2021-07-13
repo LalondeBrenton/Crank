@@ -11,8 +11,8 @@ public:
 	}
 	void OnEvent(Crank::Event& event) override
 	{
-		//if ((event.GetEventType() == Crank::EventType::KeyTyped) ||
-		//	(event.GetEventType() == Crank::EventType::WindowResize))
+		if ((event.GetEventType() == Crank::EventType::KeyTyped) ||
+			(event.GetEventType() == Crank::EventType::WindowResize))
 			CGE_TRACE(event.ToString());
 	}
 

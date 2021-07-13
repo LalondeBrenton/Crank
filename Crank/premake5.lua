@@ -39,18 +39,16 @@ project "Crank"
 		}
 
 	filter "configurations:Debug"
-		defines "HZ_DEBUG"
+		defines "CGE_DEBUG"
 		runtime "Debug"
 		symbols "on"
 
-		defines { "CGE_DEBUG" }
-
 	filter "configurations:Release"
-		defines "HZ_RELEASE"
+		defines "CGE_RELEASE"
 		runtime "Release"
 		optimize "on"
 
 	filter "configurations:Dist"
-		defines "HZ_DIST"
+		defines "CGE_DIST"
 		runtime "Release"
 		optimize "on"
