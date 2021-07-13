@@ -30,8 +30,8 @@ group "Dependencies"
 group ""
 
 group "Platforms"
-	include "GLFWWindow"
-	include "Win32Window"
+	include "Platform/GLFWWindow"
+	include "Platform/Win32Window"
 group ""
 
 include "Crank"
