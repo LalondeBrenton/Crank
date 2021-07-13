@@ -3,3 +3,10 @@
 ################################################################################
 
 /.vs/CrankGameEngine
+/bin/Debug-windows-x86_64
+/bin-int/Debug-windows-x86_64
+*.vcxproj
+*.filters
+*.user
+*.sln
+/.vs/Crank/v16
