@@ -1,9 +1,9 @@
-project "GLFWWindow"
+project "OpenGL"
 	kind "SharedLib"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "off"
-
+	
 	targetdir (bindir .. outputdir .. "/%{prj.name}")
 	objdir (binintdir .. outputdir .. "/%{prj.name}")
 
@@ -17,15 +17,15 @@ project "GLFWWindow"
 	{
 		"CGE_PLATFORM_WINDOWS",
 		"_CRT_SECURE_NO_WARNINGS",
-		"BUILD_DLL",
-		"GLFW_INCLUDE_NONE"
+		"BUILD_DLL"
 	}
 
 	includedirs
 	{
 		"%{wks.location}/Crank/src",
 		"%{IncludeDir.spdlog}",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.glad}"
 	}
 
 	links

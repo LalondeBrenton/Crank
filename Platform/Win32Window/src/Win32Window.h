@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Interfaces\Window.h"
+#include "Window/Window.h"
+#include "Renderer/GraphicsContext.h"
+
 #include "Core/KeyCodes.h"
 
 namespace Crank
@@ -13,9 +15,13 @@ namespace Crank
 		Win32Window();
 		virtual ~Win32Window();
 
-		virtual void Init(const WindowProperties& props);
+		virtual WindowAPIs GetAPI() override { return WindowAPIs::WindowAPIWIN32; }
+
+		virtual void Init(const WindowProperties& props, RendererAPI* rendererapi);
 
 		void OnUpdate() override;
+
+		void SwapBuffers() override;
 
 		unsigned int GetWidth() const override { return m_Data.Width; }
 		unsigned int GetHeight() const override { return m_Data.Height; }
@@ -42,12 +48,15 @@ namespace Crank
 		static LRESULT __stdcall WindowProcedure(HWND window, unsigned int msg, WPARAM wp, LPARAM lp);
 		void LastErrormsg();
 		std::wstring ConvertStringtoW(const std::string& text);
-
 		static KeyCode WinToKeyCode(WPARAM wp);
-
-		HWND m_Window;
+		void CreateOpenGLContext();
 
 		WindowData m_Data;
 		LONG_PTR m_WindowData;
+		HWND m_Window;
+		RendererAPI* m_RendererAPI;
+		GraphicsContext* m_RenderContext;
+		HDC m_DC;
+		HGLRC m_RC;
 	};
 }

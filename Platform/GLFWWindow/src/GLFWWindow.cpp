@@ -14,8 +14,8 @@ namespace Crank
 		CGE_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
 	}
 
-	GLFWWindow::GLFWWindow() 
-		: m_Window(nullptr), m_Data()
+	GLFWWindow::GLFWWindow()
+		:  m_Data() , m_Window(nullptr)
 	{
 		//Log::Init();
 	}
@@ -25,11 +25,17 @@ namespace Crank
 		Shutdown();
 	}
 
-	void GLFWWindow::Init(const WindowProperties& props)
+	void GLFWWindow::Init(const WindowProperties& props, RendererAPI* rendererapi)
 	{
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
+
+
+		m_RendererAPI = rendererapi;
+
+		m_RenderContext = m_RendererAPI->GetContext();
+		m_RenderContext->Init(this);
 
 		//CGE_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
@@ -147,6 +153,10 @@ namespace Crank
 	void GLFWWindow::OnUpdate()
 	{
 		glfwPollEvents();
+	}
+
+	void GLFWWindow::SwapBuffers()
+	{
 		glfwSwapBuffers(m_Window);
 	}
 
@@ -164,6 +174,7 @@ namespace Crank
 	{
 		return m_Data.VSync;
 	}
+
 }
 
 CGE_API bool CreateWindowAPI(Crank::Window** object)

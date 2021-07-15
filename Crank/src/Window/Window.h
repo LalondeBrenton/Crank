@@ -4,9 +4,16 @@
 #include <string>
 
 #include "Events/Event.h"
+#include "Renderer/RendererAPI.h"
 
 namespace Crank
 {
+	enum class WindowAPIs
+	{
+		WindowAPIGLFW,
+		WindowAPIWIN32
+	};
+
 	struct WindowProperties
 	{
 		std::string Title;
@@ -14,8 +21,8 @@ namespace Crank
 		uint32_t Height;
 
 		WindowProperties(const std::string& title = "Crank Graphics Engine",
-			uint32_t width = 1600,
-			uint32_t height = 900)
+			uint32_t width = 1280,
+			uint32_t height = 720)
 			: Title(title), Width(width), Height(height)
 		{}
 	};
@@ -27,9 +34,12 @@ namespace Crank
 
 		virtual ~Window() = default;
 
-		virtual void Init(const WindowProperties& props) = 0;
+		virtual WindowAPIs GetAPI() = 0;
+
+		virtual void Init(const WindowProperties& props, RendererAPI* rendererapi) = 0;
 
 		virtual void OnUpdate() = 0;
+		virtual void SwapBuffers() = 0;
 
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;

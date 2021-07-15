@@ -6,6 +6,10 @@
 
 #include "Core/KeyCodes.h"
 
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
 #include <windowsx.h>
 #include <winuser.h>
@@ -15,20 +19,26 @@ namespace Crank
 	static LPCWSTR s_myclass = L"myclass";
 
 	Win32Window::Win32Window()
-		: m_Window(nullptr)
-	{
-
-	}
+		: m_Data(), m_Window(nullptr)
+	{}
 
 	Win32Window::~Win32Window()
 	{
-		DestroyWindow(m_Window);
-		UnregisterClass(s_myclass, GetModuleHandle(0));
+		Shutdown();
 	}
 
-	void Win32Window::Init(const WindowProperties& props)
+	void Win32Window::Init(const WindowProperties& props, RendererAPI* rendererapi)
 	{
-		WNDCLASSEXW wndclass; 
+		m_Data.Title = props.Title;
+		m_Data.Width = props.Width;
+		m_Data.Height = props.Height;
+
+		m_RendererAPI = rendererapi;
+
+		m_RenderContext = m_RendererAPI->GetContext();
+		m_RenderContext->Init(this);
+
+		WNDCLASSEXW wndclass;
 		wndclass.cbSize = sizeof(tagWNDCLASSEXW);
 		wndclass.style = CS_DBLCLKS;
 		wndclass.lpfnWndProc = WindowProcedure;
@@ -45,28 +55,40 @@ namespace Crank
 
 		ATOM result = RegisterClassEx(&wndclass);
 
-		if (result)
+		if (!result)
 		{
-			std::wstring wtitle = ConvertStringtoW(props.Title);
-			LPCWSTR title = wtitle.c_str();
-
-			m_Window = CreateWindowEx(0, s_myclass, (LPCWSTR)title,
-				WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-				props.Width, props.Height, 0, 0, GetModuleHandle(0), 0);
-			if (m_Window)
-			{
-				// Set the Window data pointer
-				LONG_PTR lpthis = SetWindowLongPtr(m_Window, GWLP_USERDATA, (LONG_PTR)this);
-
-				ShowWindow(m_Window, SW_SHOWDEFAULT);
-				//UpdateWindow(m_Window);
-			}
-			else
-				LastErrormsg();
-		}
-		else
 			LastErrormsg();
-		
+			return;
+		}
+
+		std::wstring wtitle = ConvertStringtoW(props.Title);
+		LPCWSTR title = wtitle.c_str();
+
+		m_Window = CreateWindowEx(0, s_myclass, (LPCWSTR)title,
+			WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+			props.Width, props.Height, 0, 0, GetModuleHandle(0), 0);
+
+		if (!m_Window)
+		{
+			LastErrormsg();
+			return;
+		}
+
+		// Set the Window data pointer
+		LONG_PTR lpthis = SetWindowLongPtr(m_Window, GWLP_USERDATA, (LONG_PTR)this);
+
+		// TODO Create Graphics Context
+		switch (m_RendererAPI->GetAPI())
+		{
+		case RendererAPIs::OpenGL:
+			CreateOpenGLContext();
+			break;
+		}
+
+
+		ShowWindow(m_Window, SW_SHOWDEFAULT);
+		UpdateWindow(m_Window);
+		SetFocus(m_Window);
 	}
 
 	void Win32Window::OnUpdate()
@@ -77,6 +99,11 @@ namespace Crank
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+	}
+
+	void Win32Window::SwapBuffers()
+	{
+		m_RenderContext->SwapBuffers();
 	}
 
 	void Win32Window::SetVSync(bool enabled)
@@ -91,7 +118,30 @@ namespace Crank
 
 	void Win32Window::Shutdown()
 	{
-
+		if (m_RendererAPI->GetAPI() == RendererAPIs::OpenGL)
+		{
+			if (!wglMakeCurrent(NULL, NULL))                 // Are We Able To Release The DC And RC Contexts?
+				LastErrormsg();
+			if (!wglDeleteContext(m_RC))                 // Are We Able To Delete The RC?
+			{
+				LastErrormsg();
+				m_RC = NULL;                           // Set DC To NULL
+			}
+			if (m_DC && !ReleaseDC(m_Window, m_DC))                    // Are We Able To Release The DC
+			{
+				LastErrormsg();
+				m_DC = NULL;                           // Set DC To NULL
+			}
+		}
+		if (m_Window && !DestroyWindow(m_Window))                   // Are We Able To Destroy The Window?
+		{
+			LastErrormsg();
+			m_Window = NULL;                          // Set hWnd To NULL
+		}
+		if (!UnregisterClass(s_myclass, GetModuleHandle(0)))               // Are We Able To Unregister Class
+		{
+			LastErrormsg();
+		}
 	}
 
 	LRESULT __stdcall Win32Window::WindowProcedure(HWND window, unsigned int msg, WPARAM wp, LPARAM lp)
@@ -429,6 +479,61 @@ namespace Crank
 		}
 
 		return (uint16_t)wp;
+	}
+
+	void Win32Window::CreateOpenGLContext()
+	{
+		static  PIXELFORMATDESCRIPTOR pfd =			// pfd Tells Windows How We Want Things To Be
+		{
+			sizeof(PIXELFORMATDESCRIPTOR),			// Size Of This Pixel Format Descriptor
+			1,										// Version Number
+			PFD_DRAW_TO_WINDOW |					// Format Must Support Window
+			PFD_SUPPORT_OPENGL |					// Format Must Support OpenGL
+			PFD_DOUBLEBUFFER,						// Must Support Double Buffering
+			PFD_TYPE_RGBA,							// Request An RGBA Format
+			24,										// Select Our Color Depth
+			0, 0, 0, 0, 0, 0,						// Color Bits Ignored
+			0,										// No Alpha Buffer
+			0,										// Shift Bit Ignored
+			0,										// No Accumulation Buffer
+			0, 0, 0, 0,								// Accumulation Bits Ignored
+			16,										// 16Bit Z-Buffer (Depth Buffer)
+			0,										// No Stencil Buffer
+			0,										// No Auxiliary Buffer
+			PFD_MAIN_PLANE,							// Main Drawing Layer
+			0,										// Reserved
+			0, 0, 0									// Layer Masks Ignored
+		};
+
+		if (!(m_DC = GetDC(m_Window)))				// Did We Get A Device Context?
+		{
+			LastErrormsg();
+			return;
+		}
+		int PixelFormat;
+		if (!(PixelFormat = ChoosePixelFormat(m_DC, &pfd)))			// Did Windows Find A Matching Pixel Format?
+		{
+			LastErrormsg();
+			return;
+		}
+
+		if (!SetPixelFormat(m_DC, PixelFormat, &pfd))				// Are We Able To Set The Pixel Format?
+		{
+			LastErrormsg();
+			return;
+		}
+
+		if (!(m_RC = wglCreateContext(m_DC)))						// Are We Able To Get A Rendering Context?
+		{
+			LastErrormsg();
+			return;
+		}
+
+		if (!wglMakeCurrent(m_DC, m_RC))							// Try To Activate The Rendering Context
+		{
+			LastErrormsg();
+			return;
+		}
 	}
 
 }

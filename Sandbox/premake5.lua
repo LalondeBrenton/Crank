@@ -3,9 +3,9 @@ project "Sandbox"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "off"
-
-	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
+	
+	targetdir (bindir .. outputdir .. "/%{prj.name}")
+	objdir (binintdir .. outputdir .. "/%{prj.name}")
 
 	files
 	{

@@ -9,10 +9,13 @@ namespace Crank
 	Application::Application(ApplicationCommandLineArgs args, const std::string& name)
 		: m_CommandLineArgs(args), m_Name(name)
 	{
-		m_LibLoader.LoadWindow(m_WindowAPI);
-		m_Window = m_LibLoader.GetWindow();
+		m_LibLoader.LoadRendererAPI(RendererAPIs::OpenGL);
+		m_RendererAPI = m_LibLoader.GetRendererAPI();
 
-		m_Window->Init(WindowProperties(m_Name));
+		m_LibLoader.LoadWindowAPI(m_WindowAPI);
+		m_Window = m_LibLoader.GetWindowAPI();
+
+		m_Window->Init(WindowProperties(m_Name), m_RendererAPI);
 		m_Window->SetEventCallback(CGE_BIND_EVENT_FN(Application::OnEvent));
 	}
 
@@ -69,6 +72,7 @@ namespace Crank
 			}
 
 			m_Window->OnUpdate();
+			m_Window->SwapBuffers();
 
 			if (m_SwapWindowAPI)
 			{
@@ -77,12 +81,12 @@ namespace Crank
 				else
 					m_WindowAPI = WindowAPIs::WindowAPIGLFW;
 
-				m_LibLoader.ReleaseWindow();
+				m_LibLoader.ReleaseWindowAPI();
 
-				m_LibLoader.LoadWindow(m_WindowAPI);
-				m_Window = m_LibLoader.GetWindow();
+				m_LibLoader.LoadWindowAPI(m_WindowAPI);
+				m_Window = m_LibLoader.GetWindowAPI();
 
-				m_Window->Init(WindowProperties(m_Name));
+				m_Window->Init(WindowProperties(m_Name), m_RendererAPI);
 				m_Window->SetEventCallback(CGE_BIND_EVENT_FN(Application::OnEvent));
 				m_SwapWindowAPI = false;
 			}

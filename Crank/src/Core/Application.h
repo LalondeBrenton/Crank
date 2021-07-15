@@ -5,7 +5,7 @@
 #include "Events/Event.h"
 #include "Events/ApplicationEvent.h"
 
-#include "Interfaces/Window.h"
+#include "Window/Window.h"
 
 namespace Crank
 {
@@ -38,9 +38,11 @@ namespace Crank
 	private:
 		ApplicationCommandLineArgs m_CommandLineArgs;
 		LibLoader m_LibLoader;
+		RendererAPI* m_RendererAPI;
 		Window* m_Window;
-		//Scope<Window> m_Window;
+
 		std::string m_Name;
+
 		WindowAPIs m_WindowAPI = WindowAPIs::WindowAPIWIN32;
 		bool m_SwapWindowAPI = false;
 		bool m_Running = true;

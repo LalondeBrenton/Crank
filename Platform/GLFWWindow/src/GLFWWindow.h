@@ -1,6 +1,7 @@
 #pragma once
-#include "Interfaces/Window.h"
 
+#include "Window/Window.h"
+#include "Renderer/GraphicsContext.h"
 
 #include <GLFW/glfw3.h>
 
@@ -13,9 +14,13 @@ namespace Crank
 		GLFWWindow();
 		virtual ~GLFWWindow();
 
-		virtual void Init(const WindowProperties& props);
+		virtual WindowAPIs GetAPI() override { return WindowAPIs::WindowAPIGLFW; }
+
+		virtual void Init(const WindowProperties& props, RendererAPI* rendererapi);
 
 		void OnUpdate() override;
+
+		void SwapBuffers() override;
 
 		unsigned int GetWidth() const override { return m_Data.Width; }
 		unsigned int GetHeight() const override { return m_Data.Height; }
@@ -28,10 +33,6 @@ namespace Crank
 		virtual void* GetNativeWindow() const { return m_Window; }
 
 	private:
-		virtual void Shutdown();
-
-		GLFWwindow* m_Window;
-
 		struct WindowData
 		{
 			std::string Title;
@@ -41,7 +42,12 @@ namespace Crank
 			EventCallbackFn EventCallback;
 		};
 
+		virtual void Shutdown();
+
 		WindowData m_Data;
+		GLFWwindow* m_Window;
+		RendererAPI* m_RendererAPI;
+		GraphicsContext* m_RenderContext;
 	};
 
 }

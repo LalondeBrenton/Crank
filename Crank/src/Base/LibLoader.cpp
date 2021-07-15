@@ -8,9 +8,8 @@
 namespace Crank
 {
 
-	bool LibLoader::LoadWindow(WindowAPIs api)
+	bool LibLoader::LoadWindowAPI(WindowAPIs api)
 	{
-
 		// decide which API should be used
 		switch (api)
 		{
@@ -24,19 +23,21 @@ namespace Crank
 			if (!m_WindowDLL)
 				return false;
 			break;
+		default:
+			return false;
 		}
 		
 
-		CREATEWINDOWAPI _CreateRenderDevice = 0;
+		CREATEWINDOWAPI _CreateWindowAPI = 0;
 
 		// function pointer to dll's 'CreateRenderDevice' function
-		_CreateRenderDevice = (CREATEWINDOWAPI)GetProcAddress((HMODULE)m_WindowDLL, "CreateWindowAPI");
+		_CreateWindowAPI = (CREATEWINDOWAPI)GetProcAddress((HMODULE)m_WindowDLL, "CreateWindowAPI");
 
-		if (!_CreateRenderDevice)
+		if (!_CreateWindowAPI)
 			return false;
 
 		// call dll's create function
-		if (!_CreateRenderDevice(&m_Window))
+		if (!_CreateWindowAPI(&m_Window))
 		{
 			m_Window = nullptr;
 			return false;
@@ -45,22 +46,75 @@ namespace Crank
 		return true;
 	}
 
-	void LibLoader::ReleaseWindow()
+	void LibLoader::ReleaseWindowAPI()
 	{
-		RELEASEWINDOWAPI _ReleaseRenderDevice = 0;
+		RELEASEWINDOWAPI _ReleaseWindowAPI = 0;
 
 		if (m_WindowDLL)
 		{
 			// function pointer to dll 'ReleaseRenderDevice' function
-			_ReleaseRenderDevice = (RELEASEWINDOWAPI)GetProcAddress((HMODULE)m_WindowDLL, "ReleaseWindowAPI");
+			_ReleaseWindowAPI = (RELEASEWINDOWAPI)GetProcAddress((HMODULE)m_WindowDLL, "ReleaseWindowAPI");
 		}
 		// call dll's release function
 		if (m_Window)
 		{
-			if (!_ReleaseRenderDevice(&m_Window))
+			if (!_ReleaseWindowAPI(&m_Window))
 			{
 				m_Window = nullptr;
 			}
 		}
 	}
+
+	bool LibLoader::LoadRendererAPI(RendererAPIs api)
+	{
+		// decide which API should be used
+		switch (api)
+		{
+		case RendererAPIs::OpenGL:
+			m_RendererAPIDLL = LoadLibrary(L"OpenGL.dll");
+			if (!m_RendererAPIDLL)
+				return false;
+			break;
+		default:
+			return false;
+		}
+
+
+		CREATERENDERERAPI _CreateRenderAPI = 0;
+
+		// function pointer to dll's 'CreateRenderDevice' function
+		_CreateRenderAPI = (CREATERENDERERAPI)GetProcAddress((HMODULE)m_RendererAPIDLL, "CreateRendererAPI");
+
+		if (!_CreateRenderAPI)
+			return false;
+
+		// call dll's create function
+		if (!_CreateRenderAPI(&m_RendererAPI))
+		{
+			m_RendererAPI = nullptr;
+			return false;
+		}
+
+		return true;
+	}
+
+	void LibLoader::ReleaseRendererAPI()
+	{
+		RELEASERENDERERAPI _ReleaseRendererAPI = 0;
+
+		if (m_RendererAPIDLL)
+		{
+			// function pointer to dll 'ReleaseRenderDevice' function
+			_ReleaseRendererAPI = (RELEASERENDERERAPI)GetProcAddress((HMODULE)m_RendererAPIDLL, "ReleaseRendererAPI");
+		}
+		// call dll's release function
+		if (m_RendererAPI)
+		{
+			if (!_ReleaseRendererAPI(&m_RendererAPI))
+			{
+				m_RendererAPI = nullptr;
+			}
+		}
+	}
+
 }
