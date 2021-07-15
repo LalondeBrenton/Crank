@@ -4,3 +4,6 @@
 [submodule "vendor/spdlog"]
 	path = vendor/spdlog
 	url = https://github.com/LalondeBrenton/spdlog
+[submodule "vendor/ImGui"]
+	path = vendor/ImGui
+	url = https://github.com/LalondeBrenton/imgui
