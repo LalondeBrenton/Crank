@@ -19,7 +19,7 @@ namespace Crank
 	static LPCWSTR s_myclass = L"myclass";
 
 	Win32Window::Win32Window()
-		: m_Data(), m_Window(nullptr)
+		: m_Data(), m_Window(nullptr), m_DC(0), m_RC(0), m_RendererAPI(nullptr), m_RenderContext(nullptr)
 	{}
 
 	Win32Window::~Win32Window()
@@ -27,7 +27,7 @@ namespace Crank
 		Shutdown();
 	}
 
-	void Win32Window::Init(const WindowProperties& props, RendererAPI* rendererapi)
+	void Win32Window::Init(const WindowProperties& props, Ref<RendererAPI> rendererapi)
 	{
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
@@ -36,7 +36,6 @@ namespace Crank
 		m_RendererAPI = rendererapi;
 
 		m_RenderContext = m_RendererAPI->GetContext();
-		m_RenderContext->Init(this);
 
 		WNDCLASSEXW wndclass;
 		wndclass.cbSize = sizeof(tagWNDCLASSEXW);
@@ -84,7 +83,9 @@ namespace Crank
 			CreateOpenGLContext();
 			break;
 		}
-
+		
+		// Init RenderContext
+		m_RenderContext->Init(this);
 
 		ShowWindow(m_Window, SW_SHOWDEFAULT);
 		UpdateWindow(m_Window);
@@ -538,23 +539,22 @@ namespace Crank
 
 }
 
-CGE_API bool CreateWindowAPI(Crank::Window** object)
+CGE_API bool CreateWindowAPI(Crank::Ref < Crank::Window>* object)
 {
 	if (!*object)
 	{
-		*object = new Crank::Win32Window();
+		*object = Crank::CreateRef<Crank::Win32Window>();
 		return true;
 	}
 	return false;
 }
 
-CGE_API bool ReleaseWindowAPI(Crank::Window** object)
+CGE_API bool ReleaseWindowAPI(Crank::Ref < Crank::Window>* object)
 {
 	if (!*object)
 	{
 		return false;
 	}
-	delete* object;
 	*object = nullptr;
 	return true;
 }

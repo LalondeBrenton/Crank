@@ -27,6 +27,8 @@ namespace Crank
 		Application(ApplicationCommandLineArgs args = ApplicationCommandLineArgs(), const std::string& name = "Crank Graphics Engine");
 		virtual ~Application();
 
+		static Application& Get() { return *s_Instance; }
+
 		void OnEvent(Event& e);
 
 		void PushLayer(Layer* layer);
@@ -36,17 +38,20 @@ namespace Crank
 
 		void Run();
 	private:
+		static Application* s_Instance;
 		ApplicationCommandLineArgs m_CommandLineArgs;
 		LibLoader m_LibLoader;
-		RendererAPI* m_RendererAPI;
-		Window* m_Window;
+
+		Ref<RendererAPI> m_RendererAPI;
+		Ref<Window> m_Window;
 
 		std::string m_Name;
+		WindowAPIs m_WindowAPI = WindowAPIs::WindowAPIGLFW;
 
-		WindowAPIs m_WindowAPI = WindowAPIs::WindowAPIWIN32;
-		bool m_SwapWindowAPI = false;
 		bool m_Running = true;
 		bool m_Minimized = false;
+
+		bool m_SwapWindowAPI = false;
 		LayerStack m_LayerStack;
 
 		bool OnWindowClose(WindowCloseEvent& e);

@@ -16,18 +16,18 @@ namespace Crank
 
 		bool LoadWindowAPI(WindowAPIs api);
 		void ReleaseWindowAPI();
-		Window* GetWindowAPI() { return m_Window; }
+		Ref<Window> GetWindowAPI() { return m_Window; }
 
 		bool LoadRendererAPI(RendererAPIs api);
 		void ReleaseRendererAPI();
-		RendererAPI* GetRendererAPI() { return m_RendererAPI; }
+		Ref<RendererAPI> GetRendererAPI() { return m_RendererAPI; }
 
 	private:
 		void* m_WindowDLL;
-		Window* m_Window;
+		Ref<Window> m_Window;
 
 		void* m_RendererAPIDLL;
-		RendererAPI* m_RendererAPI;
+		Ref<RendererAPI> m_RendererAPI;
 	};
 
 }

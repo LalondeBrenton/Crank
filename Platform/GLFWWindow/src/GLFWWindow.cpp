@@ -25,7 +25,7 @@ namespace Crank
 		Shutdown();
 	}
 
-	void GLFWWindow::Init(const WindowProperties& props, RendererAPI* rendererapi)
+	void GLFWWindow::Init(const WindowProperties& props, Ref<RendererAPI> rendererapi)
 	{
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
@@ -35,7 +35,6 @@ namespace Crank
 		m_RendererAPI = rendererapi;
 
 		m_RenderContext = m_RendererAPI->GetContext();
-		m_RenderContext->Init(this);
 
 		//CGE_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
@@ -53,6 +52,9 @@ namespace Crank
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
+
+		// Init RenderContext
+		m_RenderContext->Init(this);
 
 		// Set GLFW callbacks
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
@@ -177,23 +179,22 @@ namespace Crank
 
 }
 
-CGE_API bool CreateWindowAPI(Crank::Window** object)
+CGE_API bool CreateWindowAPI(Crank::Ref < Crank::Window>* object)
 {
 	if (!*object)
 	{
-		*object = new Crank::GLFWWindow();
+		*object = Crank::CreateRef<Crank::GLFWWindow>();
 		return true;
 	}
 	return false;
 }
 
-CGE_API bool ReleaseWindowAPI(Crank::Window** object)
+CGE_API bool ReleaseWindowAPI(Crank::Ref < Crank::Window>* object)
 {
 	if (!*object)
 	{
 		return false;
 	}
-	delete* object;
 	*object = nullptr;
 	return true;
 }

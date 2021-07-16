@@ -26,7 +26,9 @@ project "Crank"
 	{
 		"src",
 		"%{IncludeDir.spdlog}",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.ImGui}"
 	}
 
 	filter "system:windows"

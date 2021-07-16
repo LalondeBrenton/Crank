@@ -19,6 +19,22 @@ namespace Crank
 	void OpenGLContext::Init(Window* window)
 	{
 		m_Window = window;
+
+		// Init Glad Here
+		if (m_Window->GetAPI() == WindowAPIs::WindowAPIGLFW)
+		{
+			if (!gladLoadGLLoader((GLADloadproc)m_Window->GetProcAddress()))
+			{
+				__debugbreak();
+			}
+		}
+		else
+		{
+			if (!gladLoadGL())
+			{
+				__debugbreak();
+			}
+		}
 	}
 
 	void OpenGLContext::SwapBuffers()

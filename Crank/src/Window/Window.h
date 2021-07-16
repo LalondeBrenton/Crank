@@ -36,7 +36,7 @@ namespace Crank
 
 		virtual WindowAPIs GetAPI() = 0;
 
-		virtual void Init(const WindowProperties& props, RendererAPI* rendererapi) = 0;
+		virtual void Init(const WindowProperties& props, Ref<RendererAPI> rendererapi) = 0;
 
 		virtual void OnUpdate() = 0;
 		virtual void SwapBuffers() = 0;
@@ -50,14 +50,20 @@ namespace Crank
 		virtual bool IsVSync() const = 0;
 
 		virtual void* GetNativeWindow() const = 0;
+		virtual void* GetProcAddress() const = 0;
 	};
 }
 
 extern "C"
-{
+{/*
 	CGE_API bool CreateWindowAPI(Crank::Window** object);
 	typedef bool(*CREATEWINDOWAPI)(Crank::Window** object);
 
 	CGE_API bool ReleaseWindowAPI(Crank::Window** object);
-	typedef bool(*RELEASEWINDOWAPI)(Crank::Window** object);
+	typedef bool(*RELEASEWINDOWAPI)(Crank::Window** object);*/
+	CGE_API bool CreateWindowAPI(Crank::Ref<Crank::Window>* object);
+	typedef bool(*CREATEWINDOWAPI)(Crank::Ref<Crank::Window>* object);
+
+	CGE_API bool ReleaseWindowAPI(Crank::Ref<Crank::Window>* object);
+	typedef bool(*RELEASEWINDOWAPI)(Crank::Ref<Crank::Window>* object);
 }

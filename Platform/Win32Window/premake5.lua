@@ -23,13 +23,13 @@ project "Win32Window"
 	includedirs
 	{
 		"%{wks.location}/Crank/src",
-		"%{IncludeDir.spdlog}"
+		"%{IncludeDir.spdlog}",
+		"%{IncludeDir.glm}"
 	}
 
 	links
 	{
 		"Crank",
-		"GLFW",
 		"opengl32.lib"
 	}
 
@@ -41,6 +41,12 @@ project "Win32Window"
 
 	filter "system:windows"
 		systemversion "latest"
+
+		defines
+		{
+			"WIN32",
+			"CGE_PLATFORM_WINDOWS"
+		}
 
 	filter "configurations:Debug"
 		defines "CGE_DEBUG"

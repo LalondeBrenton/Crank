@@ -15,10 +15,16 @@ namespace Crank
 
 		virtual void Init() override;
 
-		virtual GraphicsContext* GetContext() override;
+		virtual Ref<GraphicsContext> GetContext() override;
+
+
+		void SetClearColor(const glm::vec4& color) override;
+
+
+		void Clear() override;
 
 	private:
 		static bool s_Initialized;
-		GraphicsContext* m_GraphicsContext;
+		Ref<GraphicsContext> m_GraphicsContext;
 	};
 }

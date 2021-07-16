@@ -14,10 +14,6 @@ namespace Crank
 		virtual void Init(Window* window) override;
 		void SwapBuffers() override;
 
-	private:
-		void InitWin32();
-		void InitGLFW();
-
 		Window* m_Window;
 	};
 }

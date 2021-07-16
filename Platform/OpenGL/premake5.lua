@@ -25,13 +25,16 @@ project "OpenGL"
 		"%{wks.location}/Crank/src",
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.GLFW}",
-		"%{IncludeDir.glad}"
+		"%{IncludeDir.glad}",
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.ImGui}"
 	}
 
 	links
 	{
 		"Crank",
 		"GLFW",
+		"glad",
 		"opengl32.lib"
 	}
 	
@@ -43,6 +46,12 @@ project "OpenGL"
 
 	filter "system:windows"
 		systemversion "latest"
+
+		defines
+		{
+			"WIN32",
+			"CGE_PLATFORM_WINDOWS"
+		}
 
 	filter "configurations:Debug"
 		defines "CGE_DEBUG"

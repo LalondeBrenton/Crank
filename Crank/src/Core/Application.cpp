@@ -17,6 +17,9 @@ namespace Crank
 
 		m_Window->Init(WindowProperties(m_Name), m_RendererAPI);
 		m_Window->SetEventCallback(CGE_BIND_EVENT_FN(Application::OnEvent));
+
+		m_RendererAPI->SetClearColor(glm::vec4(0.8f, 0.2f, 0.25f, 1.0f));
+
 	}
 
 	Application::~Application()
@@ -72,6 +75,9 @@ namespace Crank
 			}
 
 			m_Window->OnUpdate();
+
+			m_RendererAPI->Clear();
+
 			m_Window->SwapBuffers();
 
 			if (m_SwapWindowAPI)
@@ -89,6 +95,8 @@ namespace Crank
 				m_Window->Init(WindowProperties(m_Name), m_RendererAPI);
 				m_Window->SetEventCallback(CGE_BIND_EVENT_FN(Application::OnEvent));
 				m_SwapWindowAPI = false;
+
+				m_RendererAPI->SetClearColor(glm::vec4(0.8f, 0.2f, 0.25f, 1.0f));
 			}
 		}
 	}

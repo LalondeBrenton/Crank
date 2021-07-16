@@ -2,11 +2,11 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/.vs/CrankGameEngine
-/bin/Debug-windows-x86_64
-/bin-int/Debug-windows-x86_64
+/.vs
+/bin
+/bin-int
 *.vcxproj
 *.filters
 *.user
 *.sln
-/.vs/Crank/v16
+/.git

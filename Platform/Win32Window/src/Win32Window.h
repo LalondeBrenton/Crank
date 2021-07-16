@@ -17,7 +17,7 @@ namespace Crank
 
 		virtual WindowAPIs GetAPI() override { return WindowAPIs::WindowAPIWIN32; }
 
-		virtual void Init(const WindowProperties& props, RendererAPI* rendererapi);
+		virtual void Init(const WindowProperties& props, Ref<RendererAPI> rendererapi);
 
 		void OnUpdate() override;
 
@@ -32,6 +32,7 @@ namespace Crank
 		bool IsVSync() const override;
 
 		virtual void* GetNativeWindow() const { return m_Window; }
+		virtual void* GetProcAddress() const override { return wglGetProcAddress; }
 
 	private:
 
@@ -54,8 +55,8 @@ namespace Crank
 		WindowData m_Data;
 		LONG_PTR m_WindowData;
 		HWND m_Window;
-		RendererAPI* m_RendererAPI;
-		GraphicsContext* m_RenderContext;
+		Ref<RendererAPI> m_RendererAPI;
+		Ref<GraphicsContext> m_RenderContext;
 		HDC m_DC;
 		HGLRC m_RC;
 	};

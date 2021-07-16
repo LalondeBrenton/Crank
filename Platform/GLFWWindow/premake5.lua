@@ -25,7 +25,8 @@ project "GLFWWindow"
 	{
 		"%{wks.location}/Crank/src",
 		"%{IncludeDir.spdlog}",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.glm}"
 	}
 
 	links
@@ -43,6 +44,12 @@ project "GLFWWindow"
 
 	filter "system:windows"
 		systemversion "latest"
+
+		defines
+		{
+			"WIN32",
+			"CGE_PLATFORM_WINDOWS"
+		}
 
 	filter "configurations:Debug"
 		defines "CGE_DEBUG"
