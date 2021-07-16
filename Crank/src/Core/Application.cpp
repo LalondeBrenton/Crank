@@ -87,7 +87,9 @@ namespace Crank
 				else
 					m_WindowAPI = WindowAPIs::WindowAPIGLFW;
 
+				m_Window = nullptr;
 				m_LibLoader.ReleaseWindowAPI();
+
 
 				m_LibLoader.LoadWindowAPI(m_WindowAPI);
 				m_Window = m_LibLoader.GetWindowAPI();

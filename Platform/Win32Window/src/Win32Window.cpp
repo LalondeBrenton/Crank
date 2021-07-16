@@ -20,7 +20,10 @@ namespace Crank
 
 	Win32Window::Win32Window()
 		: m_Data(), m_Window(nullptr), m_DC(0), m_RC(0), m_RendererAPI(nullptr), m_RenderContext(nullptr)
-	{}
+	{
+		if (!Log::IsInitalized())
+			Log::Init();
+	}
 
 	Win32Window::~Win32Window()
 	{
@@ -36,6 +39,8 @@ namespace Crank
 		m_RendererAPI = rendererapi;
 
 		m_RenderContext = m_RendererAPI->GetContext();
+
+		CGE_CORE_INFO("Creating Win32 window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
 		WNDCLASSEXW wndclass;
 		wndclass.cbSize = sizeof(tagWNDCLASSEXW);
@@ -54,11 +59,14 @@ namespace Crank
 
 		ATOM result = RegisterClassEx(&wndclass);
 
-		if (!result)
-		{
-			LastErrormsg();
-			return;
-		}
+		if (!result) LastErrormsg();
+		CGE_CORE_ASSERT(result, "Could not register Window class!");
+
+		//if (!result)
+		//{
+		//	LastErrormsg();
+		//	return;
+		//}
 
 		std::wstring wtitle = ConvertStringtoW(props.Title);
 		LPCWSTR title = wtitle.c_str();
@@ -67,11 +75,14 @@ namespace Crank
 			WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
 			props.Width, props.Height, 0, 0, GetModuleHandle(0), 0);
 
-		if (!m_Window)
-		{
-			LastErrormsg();
-			return;
-		}
+		if (!m_Window) LastErrormsg();
+		CGE_CORE_ASSERT(m_Window, "Could not create the Window!");
+
+		//if (!m_Window)
+		//{
+		//	LastErrormsg();
+		//	return;
+		//}
 
 		// Set the Window data pointer
 		LONG_PTR lpthis = SetWindowLongPtr(m_Window, GWLP_USERDATA, (LONG_PTR)this);
@@ -506,6 +517,18 @@ namespace Crank
 			0, 0, 0									// Layer Masks Ignored
 		};
 
+		//m_DC = GetDC(m_Window);
+		//if (!m_DC) LastErrormsg();
+		//CGE_CORE_ASSERT(m_DC, "Could not get a Device Context!");
+		//int PixelFormat = ChoosePixelFormat(m_DC, &pfd);
+		//if (!PixelFormat) LastErrormsg();
+		//CGE_CORE_ASSERT(PixelFormat, "Could not find a matching pixel format!");
+		//CGE_CORE_ASSERT(!SetPixelFormat(m_DC, PixelFormat, &pfd), "Could not set the pixel format!");
+		//m_RC = wglCreateContext(m_DC);
+		//if (!m_RC) LastErrormsg();
+		//CGE_CORE_ASSERT(m_RC, "Could not get a Rendering Context!");
+		//CGE_CORE_ASSERT(!wglMakeCurrent(m_DC, m_RC), "Could not activate the Device Context!");
+
 		if (!(m_DC = GetDC(m_Window)))				// Did We Get A Device Context?
 		{
 			LastErrormsg();
@@ -517,19 +540,16 @@ namespace Crank
 			LastErrormsg();
 			return;
 		}
-
 		if (!SetPixelFormat(m_DC, PixelFormat, &pfd))				// Are We Able To Set The Pixel Format?
 		{
 			LastErrormsg();
 			return;
 		}
-
 		if (!(m_RC = wglCreateContext(m_DC)))						// Are We Able To Get A Rendering Context?
 		{
 			LastErrormsg();
 			return;
 		}
-
 		if (!wglMakeCurrent(m_DC, m_RC))							// Try To Activate The Rendering Context
 		{
 			LastErrormsg();

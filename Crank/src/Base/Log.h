@@ -21,15 +21,18 @@ namespace Crank
 	{
 	public:
 		static void Init();
-		static void Init(const Logs& logs);
+		static void Init(const std::string& filename);
 
 		static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
 		static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
 
 		static Logs& GetLogs() { return Logs(s_CoreLogger ,s_ClientLogger); }
+		static bool IsInitalized() { return m_Initialized; }
+
 	private:
 		static std::shared_ptr<spdlog::logger> s_CoreLogger;
 		static std::shared_ptr<spdlog::logger> s_ClientLogger;
+		static bool m_Initialized;
 	};
 
 }

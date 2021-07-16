@@ -20,9 +20,9 @@ namespace Crank
 	{
 		m_Window = window;
 
-		// Init Glad Here
 		if (m_Window->GetAPI() == WindowAPIs::WindowAPIGLFW)
 		{
+			CGE_CORE_INFO("Loading OpenGL with glad and GLFW");
 			if (!gladLoadGLLoader((GLADloadproc)m_Window->GetProcAddress()))
 			{
 				__debugbreak();
@@ -30,6 +30,7 @@ namespace Crank
 		}
 		else
 		{
+			CGE_CORE_INFO("Loading OpenGL with glad and its loader");
 			if (!gladLoadGL())
 			{
 				__debugbreak();

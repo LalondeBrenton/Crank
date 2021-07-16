@@ -8,7 +8,7 @@ namespace Crank
 	class OpenGLRendererAPI : public RendererAPI
 	{
 	public:
-		OpenGLRendererAPI() : m_GraphicsContext(nullptr) {}
+		OpenGLRendererAPI();
 		virtual ~OpenGLRendererAPI() override;
 
 		virtual RendererAPIs GetAPI() override { return RendererAPIs::OpenGL; }
@@ -19,10 +19,9 @@ namespace Crank
 
 
 		void SetClearColor(const glm::vec4& color) override;
-
-
 		void Clear() override;
 
+		virtual Ref<ImGuilayer> CreateImGuiLayer() override;
 	private:
 		static bool s_Initialized;
 		Ref<GraphicsContext> m_GraphicsContext;

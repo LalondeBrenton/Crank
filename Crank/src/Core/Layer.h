@@ -9,7 +9,9 @@ namespace Crank
 	{
 	public:
 		Layer(const std::string& debugName = "Layer")
-			: m_DebugName(debugName) { }
+			: m_DebugName(debugName)
+		{
+		}
 
 		virtual ~Layer() = default;
 

@@ -28,6 +28,7 @@ namespace Crank
 		virtual ~Application();
 
 		static Application& Get() { return *s_Instance; }
+		Ref<Window> GetWindow() { return m_Window; }
 
 		void OnEvent(Event& e);
 

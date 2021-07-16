@@ -17,7 +17,8 @@ namespace Crank
 	GLFWWindow::GLFWWindow()
 		:  m_Data() , m_Window(nullptr)
 	{
-		//Log::Init();
+		if (!Log::IsInitalized())
+			Log::Init();
 	}
 
 	GLFWWindow::~GLFWWindow()
@@ -36,13 +37,13 @@ namespace Crank
 
 		m_RenderContext = m_RendererAPI->GetContext();
 
-		//CGE_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
+		CGE_CORE_INFO("Creating GLFW window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
 		if (!s_GLFWInitialized)
 		{
 			// TODO: glfwTerminate on system shutdown
 			int success = glfwInit();
-			//CGE_CORE_ASSERT(success, "Could not intialize GLFW!");
+			CGE_CORE_ASSERT(success, "Could not intialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
 			s_GLFWInitialized = true;
 		}

@@ -1,11 +1,19 @@
 #include "OpenGLrendererAPI.h"
 #include "OpenGLContext.h"
+#include "OpenGLImGuiLayer.h"
 
 #include <glad/glad.h>
 
 namespace Crank
 {
 	bool OpenGLRendererAPI::s_Initialized = false;
+
+	OpenGLRendererAPI::OpenGLRendererAPI()
+		: m_GraphicsContext(nullptr)
+	{
+		if (!Log::IsInitalized())
+			Log::Init();
+	}
 
 	OpenGLRendererAPI::~OpenGLRendererAPI()
 	{
@@ -34,6 +42,11 @@ namespace Crank
 	void OpenGLRendererAPI::Clear()
 	{
 		::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+
+	Crank::Ref<Crank::ImGuilayer> OpenGLRendererAPI::CreateImGuiLayer()
+	{
+		return CreateRef< OpenGLImGuiLayer>();
 	}
 
 }

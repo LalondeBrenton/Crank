@@ -63,6 +63,9 @@ namespace Crank
 				m_Window = nullptr;
 			}
 		}
+		
+		//FreeLibrary((HMODULE)m_WindowDLL);
+		//m_WindowDLL = nullptr;
 	}
 
 	bool LibLoader::LoadRendererAPI(RendererAPIs api)
@@ -115,6 +118,7 @@ namespace Crank
 				m_RendererAPI = nullptr;
 			}
 		}
+		FreeLibrary((HMODULE)m_RendererAPIDLL);
 	}
 
 }
