@@ -45,31 +45,17 @@ namespace Crank
 
 		CGE_CORE_INFO("Creating Win32 window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
-		WNDCLASSEXW wndclass;
-		wndclass.cbSize = sizeof(tagWNDCLASSEXW);
-		wndclass.style = CS_DBLCLKS;
-		wndclass.lpfnWndProc = WindowProcedure;
-		wndclass.cbClsExtra = 0;// sizeof(this);
-		wndclass.cbWndExtra = 0;
-		wndclass.hInstance = GetModuleHandle(0);
-		wndclass.hIcon = LoadIcon(0, IDI_APPLICATION);
-		wndclass.hCursor = LoadCursor(0, IDC_ARROW);
-		wndclass.hbrBackground = HBRUSH(COLOR_WINDOW + 1);
-		wndclass.lpszMenuName = 0;
-		wndclass.lpszClassName = s_myclass;
-		wndclass.hIconSm = LoadIcon(0, IDI_APPLICATION);
+		WNDCLASS wc = { 0 };
+		wc.lpfnWndProc = WindowProcedure;
+		wc.hInstance = GetModuleHandle(0);
+		wc.hbrBackground = (HBRUSH)(COLOR_BACKGROUND);
+		wc.lpszClassName = s_myclass;
+		wc.style = CS_OWNDC;
 
-
-		ATOM result = RegisterClassEx(&wndclass);
+		ATOM result = RegisterClass(&wc);
 
 		if (!result) LastErrormsg();
 		CGE_CORE_ASSERT(result, "Could not register Window class!");
-
-		//if (!result)
-		//{
-		//	LastErrormsg();
-		//	return;
-		//}
 
 		std::wstring wtitle = ConvertStringtoW(props.Title);
 		LPCWSTR title = wtitle.c_str();
@@ -81,16 +67,14 @@ namespace Crank
 		if (!m_Window) LastErrormsg();
 		CGE_CORE_ASSERT(m_Window, "Could not create the Window!");
 
-		//if (!m_Window)
-		//{
-		//	LastErrormsg();
-		//	return;
-		//}
-
 		// Set the Window data pointer
 		LONG_PTR lpthis = SetWindowLongPtr(m_Window, GWLP_USERDATA, (LONG_PTR)this);
 
-		// TODO Create Graphics Context
+		ShowWindow(m_Window, SW_SHOWDEFAULT);
+		UpdateWindow(m_Window);
+		SetFocus(m_Window);
+
+		// Create a Render Context
 		switch (m_RendererAPI->GetAPI())
 		{
 		case RendererAPIs::OpenGL:
@@ -101,9 +85,6 @@ namespace Crank
 		// Init RenderContext
 		m_RenderContext->Init(this);
 
-		ShowWindow(m_Window, SW_SHOWDEFAULT);
-		UpdateWindow(m_Window);
-		SetFocus(m_Window);
 	}
 
 	void Win32Window::OnUpdate()
@@ -501,27 +482,27 @@ namespace Crank
 
 	void Win32Window::CreateOpenGLContext()
 	{
-		static  PIXELFORMATDESCRIPTOR pfd =			// pfd Tells Windows How We Want Things To Be
-		{
-			sizeof(PIXELFORMATDESCRIPTOR),			// Size Of This Pixel Format Descriptor
-			1,										// Version Number
-			PFD_DRAW_TO_WINDOW |					// Format Must Support Window
-			PFD_SUPPORT_OPENGL |					// Format Must Support OpenGL
-			PFD_DOUBLEBUFFER,						// Must Support Double Buffering
-			PFD_TYPE_RGBA,							// Request An RGBA Format
-			24,										// Select Our Color Depth
-			0, 0, 0, 0, 0, 0,						// Color Bits Ignored
-			0,										// No Alpha Buffer
-			0,										// Shift Bit Ignored
-			0,										// No Accumulation Buffer
-			0, 0, 0, 0,								// Accumulation Bits Ignored
-			16,										// 16Bit Z-Buffer (Depth Buffer)
-			0,										// No Stencil Buffer
-			0,										// No Auxiliary Buffer
-			PFD_MAIN_PLANE,							// Main Drawing Layer
-			0,										// Reserved
-			0, 0, 0									// Layer Masks Ignored
-		};
+		//static  PIXELFORMATDESCRIPTOR pfd =			// pfd Tells Windows How We Want Things To Be
+		//{
+		//	sizeof(PIXELFORMATDESCRIPTOR),			// Size Of This Pixel Format Descriptor
+		//	1,										// Version Number
+		//	PFD_DRAW_TO_WINDOW |					// Format Must Support Window
+		//	PFD_SUPPORT_OPENGL |					// Format Must Support OpenGL
+		//	PFD_DOUBLEBUFFER,						// Must Support Double Buffering
+		//	PFD_TYPE_RGBA,							// Request An RGBA Format
+		//	24,										// Select Our Color Depth
+		//	0, 0, 0, 0, 0, 0,						// Color Bits Ignored
+		//	0,										// No Alpha Buffer
+		//	0,										// Shift Bit Ignored
+		//	0,										// No Accumulation Buffer
+		//	0, 0, 0, 0,								// Accumulation Bits Ignored
+		//	16,										// 16Bit Z-Buffer (Depth Buffer)
+		//	0,										// No Stencil Buffer
+		//	0,										// No Auxiliary Buffer
+		//	PFD_MAIN_PLANE,							// Main Drawing Layer
+		//	0,										// Reserved
+		//	0, 0, 0									// Layer Masks Ignored
+		//};
 
 		//m_DC = GetDC(m_Window);
 		//if (!m_DC) LastErrormsg();
@@ -534,6 +515,26 @@ namespace Crank
 		//if (!m_RC) LastErrormsg();
 		//CGE_CORE_ASSERT(m_RC, "Could not get a Rendering Context!");
 		//CGE_CORE_ASSERT(!wglMakeCurrent(m_DC, m_RC), "Could not activate the Device Context!");
+
+		PIXELFORMATDESCRIPTOR pfd =
+		{
+			sizeof(PIXELFORMATDESCRIPTOR),
+			1,
+			PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,    //Flags
+			PFD_TYPE_RGBA,        // The kind of framebuffer. RGBA or palette.
+			32,                   // Colordepth of the framebuffer.
+			0, 0, 0, 0, 0, 0,
+			0,
+			0,
+			0,
+			0, 0, 0, 0,
+			24,                   // Number of bits for the depthbuffer
+			8,                    // Number of bits for the stencilbuffer
+			0,                    // Number of Aux buffers in the framebuffer.
+			PFD_MAIN_PLANE,
+			0,
+			0, 0, 0
+		};
 
 		if (!(m_DC = GetDC(m_Window)))				// Did We Get A Device Context?
 		{

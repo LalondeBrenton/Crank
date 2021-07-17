@@ -48,8 +48,8 @@ namespace Crank
 
 
 		// Setup Platform/Renderer bindings
-		ImGui_ImplOpenGL3_Init("#version 410");
 		Application::Get().GetWindow()->ImGuiInit();
+		ImGui_ImplOpenGL3_Init("#version 410");
 	}
 
 	void OpenGLImGuiLayer::OnDetach()
