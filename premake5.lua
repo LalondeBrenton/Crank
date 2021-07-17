@@ -4,6 +4,8 @@ IncludeDir["GLFW"] = "%{wks.location}/vendor/GLFW/include"
 IncludeDir["glad"] = "%{wks.location}/vendor/glad/include"
 IncludeDir["glm"] = "%{wks.location}/vendor/glm"
 IncludeDir["ImGui"] = "%{wks.location}/vendor/ImGui"
+IncludeDir["GLFWWindow"] = "%{wks.location}/Platform/GLFWWindow/src"
+IncludeDir["Win32Window"] = "%{wks.location}/Platform/Win32Window/src"
 
 workspace "Crank"
 	architecture "x86_64"

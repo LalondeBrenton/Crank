@@ -51,16 +51,15 @@ namespace Crank
 
 		virtual void* GetNativeWindow() const = 0;
 		virtual void* GetProcAddress() const = 0;
+
+		virtual bool ImGuiInit() = 0;
+		virtual void ImGuiNewFrame() = 0;
+		virtual void ImGuiShutdown() = 0;
 	};
 }
 
 extern "C"
-{/*
-	CGE_API bool CreateWindowAPI(Crank::Window** object);
-	typedef bool(*CREATEWINDOWAPI)(Crank::Window** object);
-
-	CGE_API bool ReleaseWindowAPI(Crank::Window** object);
-	typedef bool(*RELEASEWINDOWAPI)(Crank::Window** object);*/
+{
 	CGE_API bool CreateWindowAPI(Crank::Ref<Crank::Window>* object);
 	typedef bool(*CREATEWINDOWAPI)(Crank::Ref<Crank::Window>* object);
 

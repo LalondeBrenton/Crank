@@ -27,17 +27,18 @@ namespace Crank
 		Application(ApplicationCommandLineArgs args = ApplicationCommandLineArgs(), const std::string& name = "Crank Graphics Engine");
 		virtual ~Application();
 
-		static Application& Get() { return *s_Instance; }
-		Ref<Window> GetWindow() { return m_Window; }
-
 		void OnEvent(Event& e);
 
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
+		void Run();
+		void Close();
+
+		static Application& Get() { return *s_Instance; }
+		Ref<Window> GetWindow() { return m_Window; }
 
 		ApplicationCommandLineArgs GetCommandLineArgs() const { return m_CommandLineArgs; }
 
-		void Run();
 	private:
 		static Application* s_Instance;
 		ApplicationCommandLineArgs m_CommandLineArgs;
@@ -57,6 +58,9 @@ namespace Crank
 
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
+
+
+		Ref<ImGuiLayer> m_ImGuiLayer;
 	};
 
 	// To be defined in CLIENT

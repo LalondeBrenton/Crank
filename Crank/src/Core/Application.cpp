@@ -4,11 +4,18 @@
 
 #include "Events/KeyEvent.h"
 
+#include <imgui.h>
+
 namespace Crank
 {
+
+	Application* Application::s_Instance;
+
 	Application::Application(ApplicationCommandLineArgs args, const std::string& name)
 		: m_CommandLineArgs(args), m_Name(name)
 	{
+		s_Instance = this;
+
 		m_LibLoader.LoadRendererAPI(RendererAPIs::OpenGL);
 		m_RendererAPI = m_LibLoader.GetRendererAPI();
 
@@ -20,6 +27,10 @@ namespace Crank
 
 		m_RendererAPI->SetClearColor(glm::vec4(0.8f, 0.2f, 0.25f, 1.0f));
 
+		m_ImGuiLayer = m_RendererAPI->CreateImGuiLayer(m_Window.get());
+
+		// All the DLL's are storing data in Local Thread Storage and not wanting to play nice together
+		//PushOverlay(m_ImGuiLayer.get());
 	}
 
 	Application::~Application()
@@ -67,16 +78,21 @@ namespace Crank
 	{
 		while (m_Running)
 		{
+			m_Window->OnUpdate();
+			m_RendererAPI->Clear();
+
 			if (!m_Minimized)
 			{
 				for (Layer* layer : m_LayerStack)
 					layer->OnUpdate();
 
+				m_ImGuiLayer->Begin();
+				for (Layer* layer : m_LayerStack)
+					layer->OnImGuiRender();
+				m_ImGuiLayer->End();
+
 			}
 
-			m_Window->OnUpdate();
-
-			m_RendererAPI->Clear();
 
 			m_Window->SwapBuffers();
 
@@ -102,6 +118,12 @@ namespace Crank
 			}
 		}
 	}
+
+	void Application::Close()
+	{
+		m_Running = false;
+	}
+
 	bool Application::OnWindowClose(WindowCloseEvent& e)
 	{
 		m_Running = false;

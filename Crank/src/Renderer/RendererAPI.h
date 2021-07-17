@@ -28,7 +28,7 @@ namespace Crank
 		virtual void SetClearColor(const glm::vec4& color) = 0;
 		virtual void Clear() = 0;
 
-		virtual Ref<ImGuilayer> CreateImGuiLayer() = 0;
+		virtual Ref<ImGuiLayer> CreateImGuiLayer(void* window) = 0;
 	};
 }
 

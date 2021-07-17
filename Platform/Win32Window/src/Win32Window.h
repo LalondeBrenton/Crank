@@ -5,6 +5,8 @@
 
 #include "Core/KeyCodes.h"
 
+#include "Win32ImGuiImpl.h"
+
 namespace Crank
 {
 
@@ -34,6 +36,9 @@ namespace Crank
 		virtual void* GetNativeWindow() const { return m_Window; }
 		virtual void* GetProcAddress() const override { return wglGetProcAddress; }
 
+		virtual bool ImGuiInit() override { return ImGui_ImplWin32_Init(m_Window); }
+		virtual void ImGuiNewFrame() override { ImGui_ImplWin32_NewFrame(); }
+		virtual void ImGuiShutdown() override { ImGui_ImplWin32_Shutdown(); }
 	private:
 
 		struct WindowData

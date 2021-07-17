@@ -26,13 +26,15 @@ project "GLFWWindow"
 		"%{wks.location}/Crank/src",
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.GLFW}",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.ImGui}",
 	}
 
 	links
 	{
 		"Crank",
 		"GLFW",
+		"ImGui",
 		"opengl32.lib"
 	}
 	

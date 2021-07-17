@@ -28,7 +28,19 @@ project "Crank"
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.ImGui}"
+		"%{IncludeDir.ImGui}",
+
+		"%{IncludeDir.glad}",
+		"%{IncludeDir.ImGui}",
+	}
+
+	
+	links
+	{
+		"GLFW",
+		"glad",
+		"ImGui",
+		"opengl32.lib"
 	}
 
 	filter "system:windows"

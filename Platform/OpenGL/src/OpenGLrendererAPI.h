@@ -21,7 +21,8 @@ namespace Crank
 		void SetClearColor(const glm::vec4& color) override;
 		void Clear() override;
 
-		virtual Ref<ImGuilayer> CreateImGuiLayer() override;
+		virtual Ref<ImGuiLayer> CreateImGuiLayer(void* window) override;
+
 	private:
 		static bool s_Initialized;
 		Ref<GraphicsContext> m_GraphicsContext;

@@ -44,9 +44,9 @@ namespace Crank
 		::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	Crank::Ref<Crank::ImGuilayer> OpenGLRendererAPI::CreateImGuiLayer()
+	Ref<ImGuiLayer> OpenGLRendererAPI::CreateImGuiLayer(void* window)
 	{
-		return CreateRef< OpenGLImGuiLayer>();
+		return CreateRef<OpenGLImGuiLayer>(window);
 	}
 
 }

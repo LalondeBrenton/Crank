@@ -4,14 +4,15 @@
 
 namespace Crank
 {
-	class ImGuilayer : public Layer
+	class ImGuiLayer : public Layer
 	{
 	public:
-		ImGuilayer() : Layer("ImGuiLayer") {}
+		ImGuiLayer(void* window) :Layer("ImGuiLayer") {}
+		~ImGuiLayer() = default;
+
 		virtual void Begin() = 0;
 		virtual void End() = 0;
 
-		void SetDarkThemeColors();
-
+		virtual void  BlockEvents(bool block) = 0;
 	};
 }

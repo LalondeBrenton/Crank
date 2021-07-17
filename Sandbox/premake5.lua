@@ -22,7 +22,8 @@ project "Sandbox"
 
 	links
 	{
-		"Crank"
+		"Crank",
+		"ImGui"
 	}
 	
 	filter "system:windows"

@@ -27,7 +27,9 @@ project "OpenGL"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.glad}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.ImGui}"
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.GLFWWindow}",
+		"%{IncludeDir.Win32Window}"
 	}
 
 	links
@@ -35,6 +37,7 @@ project "OpenGL"
 		"Crank",
 		"GLFW",
 		"glad",
+		"ImGui",
 		"opengl32.lib"
 	}
 	

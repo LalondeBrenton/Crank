@@ -24,12 +24,14 @@ project "Win32Window"
 	{
 		"%{wks.location}/Crank/src",
 		"%{IncludeDir.spdlog}",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.ImGui}",
 	}
 
 	links
 	{
 		"Crank",
+		"ImGui",
 		"opengl32.lib"
 	}
 

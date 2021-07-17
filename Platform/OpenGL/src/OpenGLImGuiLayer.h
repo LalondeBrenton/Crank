@@ -1,26 +1,29 @@
 #pragma once
 
 #include "ImGui/ImGuiLayer.h"
+#include "Window/Window.h"
 
 namespace Crank
 {
-	class OpenGLImGuiLayer : public ImGuilayer
+	class OpenGLImGuiLayer : public ImGuiLayer
 	{
 	public:
-		OpenGLImGuiLayer();
+		OpenGLImGuiLayer(void* window);
 		~OpenGLImGuiLayer() = default;
 
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
 		virtual void OnEvent(Event& e) override;
 
-		void Begin();
-		void End();
+		virtual void Begin() override;
+		virtual void End()override;
 
-		void BlockEvents(bool block) { m_BlockEvents = block; }
+		virtual void BlockEvents(bool block) override { m_BlockEvents = block; }
 
 	private:
+		Window* m_Window;
 		bool m_BlockEvents = true;
 
+		void SetDarkThemeColors();
 	};
 }
