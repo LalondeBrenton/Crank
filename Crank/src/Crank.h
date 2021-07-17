@@ -1,12 +1,13 @@
 #pragma once
 
-#include "Base/Base.h"
+#include "Crank/Base/EntryPoint.h"
 
-#include "Core/Application.h"
-#include "Core/EntryPoint.h"
-#include "Core/Layer.h"
+#include "Crank/Base/Base.h"
 
-#include "Events/Event.h"
-#include "Events/KeyEvent.h"
-#include "Events/MouseEvent.h"
-#include "Events/ApplicationEvent.h"
+#include "Crank/Core/Application.h"
+#include "Crank/Core/Layer.h"
+
+#include "Crank/Events/Event.h"
+#include "Crank/Events/KeyEvent.h"
+#include "Crank/Events/MouseEvent.h"
+#include "Crank/Events/ApplicationEvent.h"

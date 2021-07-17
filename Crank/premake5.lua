@@ -18,8 +18,7 @@ project "Crank"
 
 	defines
 	{
-		"_CRT_SECURE_NO_WARNINGS",
-		"BUILD_LIB"
+		"_CRT_SECURE_NO_WARNINGS"
 	}
 
 	includedirs
