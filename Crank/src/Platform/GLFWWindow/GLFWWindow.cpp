@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "GLFWWindow.h"
 
+#include "Crank/Core/Application.h"
+
 #include "Crank/Events/ApplicationEvent.h"
 #include "Crank/Events/KeyEvent.h"
 #include "Crank/Events/MouseEvent.h"
@@ -56,7 +58,7 @@ namespace Crank
 		SetVSync(true);
 
 		// Init RenderContext
-		m_RenderContext->Init(this);
+		m_RenderContext->Init();
 
 		// Set GLFW callbacks
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
@@ -161,7 +163,10 @@ namespace Crank
 
 	void GLFWWindow::SwapBuffers()
 	{
-		glfwSwapBuffers(m_Window);
+		if (Application::Get().GetRenderAPI()->GetAPI() == RendererAPIs::OpenGL)
+			glfwSwapBuffers(m_Window);
+		else
+			Application::Get().GetRenderAPI()->GetContext()->SwapBuffers();
 	}
 
 	void GLFWWindow::SetVSync(bool enabled)

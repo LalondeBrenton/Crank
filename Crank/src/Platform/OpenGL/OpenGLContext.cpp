@@ -2,11 +2,14 @@
 #include "OpenGLContext.h"
 
 #include "Crank/Window/Window.h"
+#include "Crank/Core/Application.h"
 
 #include <glad/glad.h>
 
 namespace Crank
 {
+
+	bool OpenGLContext::GladInit = false;
 
 	OpenGLContext::OpenGLContext()
 	{
@@ -18,14 +21,16 @@ namespace Crank
 
 	}
 
-	void OpenGLContext::Init(Window* window)
+	void OpenGLContext::Init()
 	{
-		m_Window = window;
 
-		if (m_Window->GetAPI() == WindowAPIs::WindowAPIGLFW)
+		if (GladInit)
+			return;
+
+		if (Application::Get().GetWindow().get()->GetAPI() == WindowAPIs::WindowAPIGLFW)
 		{
 			CGE_CORE_INFO("Loading OpenGL with glad and GLFW");
-			if (!gladLoadGLLoader((GLADloadproc)m_Window->GetProcAddress()))
+			if (!gladLoadGLLoader((GLADloadproc)Application::Get().GetWindow().get()->GetProcAddress()))
 			{
 				__debugbreak();
 			}
@@ -38,12 +43,11 @@ namespace Crank
 				__debugbreak();
 			}
 		}
+		GladInit = true;
 	}
 
 	void OpenGLContext::SwapBuffers()
 	{
-		if (m_Window->GetAPI() == WindowAPIs::WindowAPIGLFW)
-			m_Window->SwapBuffers();
-		::SwapBuffers(GetDC((HWND)m_Window->GetNativeWindow()));
+		Application::Get().GetWindow().get()->SwapBuffers();
 	}
 }

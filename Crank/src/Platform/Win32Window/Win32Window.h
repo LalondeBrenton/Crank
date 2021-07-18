@@ -33,7 +33,7 @@ namespace Crank
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
 
-		virtual void* GetNativeWindow() const { return m_Window; }
+		virtual void* GetNativeWindow() const { return (void*)&m_Window; }
 		virtual void* GetProcAddress() const override { return wglGetProcAddress; }
 
 		virtual bool ImGuiInit() override { return ImGui_ImplWin32_Init(m_Window); }
@@ -57,9 +57,9 @@ namespace Crank
 		std::wstring ConvertStringtoW(const std::string& text);
 		static KeyCode WinToKeyCode(WPARAM wp);
 		void CreateOpenGLContext();
+		bool WGLExtensionSupported(const char* extensionname);
 
 		WindowData m_Data;
-		LONG_PTR m_WindowData;
 		HWND m_Window;
 		Ref<RendererAPI> m_RendererAPI;
 		Ref<GraphicsContext> m_RenderContext;

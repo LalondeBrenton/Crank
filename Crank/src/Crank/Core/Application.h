@@ -35,30 +35,26 @@ namespace Crank
 
 		static Application& Get() { return *s_Instance; }
 		Ref<Window> GetWindow() { return m_Window; }
+		Ref<RendererAPI> GetRenderAPI() { return m_RendererAPI; }
 
 		ApplicationCommandLineArgs GetCommandLineArgs() const { return m_CommandLineArgs; }
 
 	private:
 		static Application* s_Instance;
-		ApplicationCommandLineArgs m_CommandLineArgs;
 
+		ApplicationCommandLineArgs m_CommandLineArgs;
 		Ref<RendererAPI> m_RendererAPI;
 		Ref<Window> m_Window;
-
 		std::string m_Name;
-		WindowAPIs m_WindowAPI = WindowAPIs::WindowAPIWIN32;
-
+		WindowAPIs m_WindowAPI;
 		bool m_Running = true;
 		bool m_Minimized = false;
-
-		bool m_SwapWindowAPI = false;
 		LayerStack m_LayerStack;
-
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
-
-
 		ImGuiLayer* m_ImGuiLayer;
+
+		bool m_SwapWindowAPI = false;
 	};
 
 	// To be defined in CLIENT

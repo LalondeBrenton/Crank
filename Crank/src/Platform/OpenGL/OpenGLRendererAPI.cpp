@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "OpenGLrendererAPI.h"
+#include "OpenGLRendererAPI.h"
 #include "OpenGLContext.h"
 #include "OpenGLImGuiLayer.h"
 
@@ -7,32 +7,24 @@
 
 namespace Crank
 {
-	bool OpenGLRendererAPI::s_Initialized = false;
 
 	OpenGLRendererAPI::OpenGLRendererAPI()
-		: m_GraphicsContext(nullptr)
 	{
-		if (!Log::IsInitalized())
-			Log::Init();
+		Init();
 	}
 
 	OpenGLRendererAPI::~OpenGLRendererAPI()
 	{
-		if (m_GraphicsContext)
-			m_GraphicsContext = nullptr;
 	}
 
 	void OpenGLRendererAPI::Init()
 	{
-		m_GraphicsContext = CreateRef< OpenGLContext>();
-
-		s_Initialized = true;
+		m_GraphoicsContext = CreateRef<OpenGLContext>();
 	}
 
 	Ref<GraphicsContext> OpenGLRendererAPI::GetContext()
 	{
-		if (!s_Initialized) Init();
-		return m_GraphicsContext;
+		return m_GraphoicsContext;
 	}
 
 	void OpenGLRendererAPI::SetClearColor(const glm::vec4& color)

@@ -39,7 +39,7 @@ project "Crank"
 		"GLFW",
 		"glad",
 		"ImGui",
-		"opengl32.lib"
+		"opengl32.lib",
 	}
 
 	filter "system:windows"
@@ -49,6 +49,14 @@ project "Crank"
 		{
 			"WIN32",
 			"CGE_PLATFORM_WINDOWS"
+		}
+
+		links
+		{
+			"d3d11.lib",
+			"dxgi.lib",
+			"d3dcompiler.lib",
+			"opengl32.lib",
 		}
 
 	filter "configurations:Debug"

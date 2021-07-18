@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Win32Window.h"
 
+#include "Crank/Core/Application.h"
+
 #include "Crank/Events/ApplicationEvent.h"
 #include "Crank/Events/KeyEvent.h"
 #include "Crank/Events/MouseEvent.h"
@@ -19,6 +21,14 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 namespace Crank
 {
+	// function prototypes and pointers
+	typedef const char* (WINAPI* PFNWGLGETEXTENSIONSSTRINGEXTPROC) (void);
+	typedef BOOL(WINAPI* PFNWGLSWAPINTERVALEXTPROC) (int interval);
+	typedef int (WINAPI* PFNWGLGETSWAPINTERVALEXTPROC) (void);
+	PFNWGLSWAPINTERVALEXTPROC			wglSwapIntervalEXT;
+	PFNWGLGETSWAPINTERVALEXTPROC		wglGetSwapIntervalEXT;
+	PFNWGLGETEXTENSIONSSTRINGEXTPROC	wglGetExtensionsStringEXT;
+
 	static LPCWSTR s_myclass = L"myclass";
 
 	Win32Window::Win32Window()
@@ -45,24 +55,30 @@ namespace Crank
 
 		CGE_CORE_INFO("Creating Win32 window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
-		WNDCLASS wc = { 0 };
-		wc.lpfnWndProc = WindowProcedure;
-		wc.hInstance = GetModuleHandle(0);
-		wc.hbrBackground = (HBRUSH)(COLOR_BACKGROUND);
-		wc.lpszClassName = s_myclass;
-		wc.style = CS_OWNDC;
+		//WNDCLASS wc = { 0 };
+		//wc.lpfnWndProc = WindowProcedure;
+		//wc.hInstance = GetModuleHandle(0);
+		//wc.hbrBackground = (HBRUSH)(COLOR_BACKGROUND);
+		//wc.lpszClassName = s_myclass;
+		//wc.style = CS_OWNDC;
 
-		ATOM result = RegisterClass(&wc);
+		//ATOM result = RegisterClass(&wc);
 
-		if (!result) LastErrormsg();
-		CGE_CORE_ASSERT(result, "Could not register Window class!");
+		//if (!result) LastErrormsg();
+		//CGE_CORE_ASSERT(result, "Could not register Window class!");
 
 		std::wstring wtitle = ConvertStringtoW(props.Title);
 		LPCWSTR title = wtitle.c_str();
 
-		m_Window = CreateWindowEx(0, s_myclass, (LPCWSTR)title,
-			WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-			props.Width, props.Height, 0, 0, GetModuleHandle(0), 0);
+		//m_Window = CreateWindowEx(0, s_myclass, (LPCWSTR)title,
+		//	WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+		//	props.Width, props.Height, 0, 0, GetModuleHandle(0), 0);
+
+
+		WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WindowProcedure, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, s_myclass, NULL };
+		::RegisterClassEx(&wc);
+		m_Window = ::CreateWindow(wc.lpszClassName, title, WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, NULL, NULL, wc.hInstance, NULL);
+	
 
 		if (!m_Window) LastErrormsg();
 		CGE_CORE_ASSERT(m_Window, "Could not create the Window!");
@@ -75,16 +91,21 @@ namespace Crank
 		SetFocus(m_Window);
 
 		// Create a Render Context
-		switch (m_RendererAPI->GetAPI())
+		if (m_RendererAPI->GetAPI() == RendererAPIs::OpenGL)
 		{
-		case RendererAPIs::OpenGL:
 			CreateOpenGLContext();
-			break;
+
+			// Get Pointers for swap intervals if available
+			if (WGLExtensionSupported("WGL_EXT_swap_control"))
+			{
+				wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
+				wglGetSwapIntervalEXT = (PFNWGLGETSWAPINTERVALEXTPROC)wglGetProcAddress("wglGetSwapIntervalEXT");
+				wglSwapIntervalEXT(1);
+			}
 		}
 		
 		// Init RenderContext
-		m_RenderContext->Init(this);
-
+		m_RenderContext->Init();
 	}
 
 	void Win32Window::OnUpdate()
@@ -99,17 +120,30 @@ namespace Crank
 
 	void Win32Window::SwapBuffers()
 	{
-		m_RenderContext->SwapBuffers();
+
+		if (Application::Get().GetRenderAPI()->GetAPI() == RendererAPIs::OpenGL)
+			::SwapBuffers(m_DC);
+		else
+			Application::Get().GetRenderAPI()->GetContext()->SwapBuffers();
+
 	}
 
 	void Win32Window::SetVSync(bool enabled)
 	{
-
+		// Set the vsync interval
+		if (Application::Get().GetRenderAPI()->GetAPI() == RendererAPIs::OpenGL)
+		{
+			if (enabled)
+				wglSwapIntervalEXT(1);
+			else
+				wglSwapIntervalEXT(0);
+			m_Data.VSync = enabled;
+		}
 	}
 
 	bool Win32Window::IsVSync() const
 	{
-		return false;
+		return m_Data.VSync;
 	}
 
 	void Win32Window::Shutdown()
@@ -286,11 +320,6 @@ namespace Crank
 
 	std::wstring Win32Window::ConvertStringtoW(const std::string& text)
 	{
-		/*std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-		std::wstring wide = converter.from_bytes(text);
-		return (LPCWSTR) wide.c_str();*/
-
-
 		std::wstring temp(text.length(), L' ');
 		std::copy(text.begin(), text.end(), temp.begin());
 		return (LPCWSTR)temp.c_str();
@@ -482,40 +511,6 @@ namespace Crank
 
 	void Win32Window::CreateOpenGLContext()
 	{
-		//static  PIXELFORMATDESCRIPTOR pfd =			// pfd Tells Windows How We Want Things To Be
-		//{
-		//	sizeof(PIXELFORMATDESCRIPTOR),			// Size Of This Pixel Format Descriptor
-		//	1,										// Version Number
-		//	PFD_DRAW_TO_WINDOW |					// Format Must Support Window
-		//	PFD_SUPPORT_OPENGL |					// Format Must Support OpenGL
-		//	PFD_DOUBLEBUFFER,						// Must Support Double Buffering
-		//	PFD_TYPE_RGBA,							// Request An RGBA Format
-		//	24,										// Select Our Color Depth
-		//	0, 0, 0, 0, 0, 0,						// Color Bits Ignored
-		//	0,										// No Alpha Buffer
-		//	0,										// Shift Bit Ignored
-		//	0,										// No Accumulation Buffer
-		//	0, 0, 0, 0,								// Accumulation Bits Ignored
-		//	16,										// 16Bit Z-Buffer (Depth Buffer)
-		//	0,										// No Stencil Buffer
-		//	0,										// No Auxiliary Buffer
-		//	PFD_MAIN_PLANE,							// Main Drawing Layer
-		//	0,										// Reserved
-		//	0, 0, 0									// Layer Masks Ignored
-		//};
-
-		//m_DC = GetDC(m_Window);
-		//if (!m_DC) LastErrormsg();
-		//CGE_CORE_ASSERT(m_DC, "Could not get a Device Context!");
-		//int PixelFormat = ChoosePixelFormat(m_DC, &pfd);
-		//if (!PixelFormat) LastErrormsg();
-		//CGE_CORE_ASSERT(PixelFormat, "Could not find a matching pixel format!");
-		//CGE_CORE_ASSERT(!SetPixelFormat(m_DC, PixelFormat, &pfd), "Could not set the pixel format!");
-		//m_RC = wglCreateContext(m_DC);
-		//if (!m_RC) LastErrormsg();
-		//CGE_CORE_ASSERT(m_RC, "Could not get a Rendering Context!");
-		//CGE_CORE_ASSERT(!wglMakeCurrent(m_DC, m_RC), "Could not activate the Device Context!");
-
 		PIXELFORMATDESCRIPTOR pfd =
 		{
 			sizeof(PIXELFORMATDESCRIPTOR),
@@ -562,6 +557,24 @@ namespace Crank
 			LastErrormsg();
 			return;
 		}
+	}
+
+	bool Win32Window::WGLExtensionSupported(const char* extensionname)
+	{
+		// this is pointer to function which returns pointer to string with list of all wgl extensions
+		PFNWGLGETEXTENSIONSSTRINGEXTPROC _wglGetExtensionsStringEXT = NULL;
+
+		// determine pointer to wglGetExtensionsStringEXT function
+		_wglGetExtensionsStringEXT = (PFNWGLGETEXTENSIONSSTRINGEXTPROC)wglGetProcAddress("wglGetExtensionsStringEXT");
+
+		if (strstr(_wglGetExtensionsStringEXT(), extensionname) == NULL)
+		{
+			// string was not found
+			return false;
+		}
+
+		// extension is supported
+		return true;
 	}
 
 }

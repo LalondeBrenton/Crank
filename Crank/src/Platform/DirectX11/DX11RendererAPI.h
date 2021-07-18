@@ -5,13 +5,13 @@
 
 namespace Crank
 {
-	class OpenGLRendererAPI : public RendererAPI
+	class DX11RendererAPI : public RendererAPI
 	{
 	public:
-		OpenGLRendererAPI();
-		virtual ~OpenGLRendererAPI() override;
+		DX11RendererAPI();
+		virtual ~DX11RendererAPI() override;
 
-		virtual RendererAPIs GetAPI() override { return RendererAPIs::OpenGL; }
+		virtual RendererAPIs GetAPI() override { return RendererAPIs::DirectX11; }
 
 		virtual void Init() override;
 
@@ -24,6 +24,6 @@ namespace Crank
 		virtual ImGuiLayer* CreateImGuiLayer() override;
 
 	private:
-		Ref<GraphicsContext> m_GraphoicsContext;
+		Ref<GraphicsContext> m_GraphicsContext;
 	};
 }

@@ -6,16 +6,14 @@
 
 namespace Crank
 {
-	class OpenGLContext : public GraphicsContext
+	class DX12Context : public GraphicsContext
 	{
 	public:
-		OpenGLContext();
-		virtual ~OpenGLContext() override;
+		DX12Context();
+		virtual ~DX12Context() override;
 
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
 
-	private:
-		static bool GladInit;
 	};
 }

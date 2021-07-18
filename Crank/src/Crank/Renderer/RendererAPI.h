@@ -12,7 +12,9 @@ namespace Crank
 {
 	enum class RendererAPIs
 	{
-		OpenGL
+		OpenGL,
+		DirectX11,
+		DirectX12
 	};
 
 	class RendererAPI

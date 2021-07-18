@@ -6,6 +6,9 @@
 
 #include <imgui.h>
 
+// temporary
+#include <glad/glad.h>
+
 namespace Crank
 {
 
@@ -16,12 +19,14 @@ namespace Crank
 	{
 		s_Instance = this;
 
-		m_RendererAPI = RendererAPI::Create(RendererAPIs::OpenGL);
+		m_WindowAPI = WindowAPIs::WindowAPIWIN32;
+		m_RendererAPI = RendererAPI::Create(RendererAPIs::DirectX11);
 
 		m_Window = Window::Create(m_WindowAPI);
 
 		m_Window->Init(WindowProperties(m_Name), m_RendererAPI);
 		m_Window->SetEventCallback(CGE_BIND_EVENT_FN(Application::OnEvent));
+		m_Window->SetVSync(false);
 
 		m_RendererAPI->SetClearColor(glm::vec4(0.8f, 0.2f, 0.25f, 1.0f));
 
@@ -89,6 +94,12 @@ namespace Crank
 
 			}
 
+			static float red = 0.8f;
+			static float change = .01f;
+			red += change;
+			if ((red >= 1.0f) && (change > 0.0f)) change = -change;
+			if ((red <= 0.0f) && (change < 0.0f)) change = -change;
+			m_RendererAPI->SetClearColor(glm::vec4(red, 0.2f, 0.25f, 1.0f));
 
 			m_Window->SwapBuffers();
 
@@ -105,7 +116,7 @@ namespace Crank
 
 				m_Window->Init(WindowProperties(m_Name), m_RendererAPI);
 				m_Window->SetEventCallback(CGE_BIND_EVENT_FN(Application::OnEvent));
-				m_RendererAPI->SetClearColor(glm::vec4(0.8f, 0.2f, 0.25f, 1.0f));
+				m_RendererAPI->SetClearColor(glm::vec4(red, 0.2f, 0.25f, 1.0f));
 
 				m_ImGuiLayer = m_RendererAPI->CreateImGuiLayer();
 				PushOverlay(m_ImGuiLayer);
